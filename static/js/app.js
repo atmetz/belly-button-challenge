@@ -6,7 +6,7 @@ d3.json(samplesUrl).then(function(data) {
     // call populateDropdown function
     populateDropdown(data);
 
-    d3.selectAll("#selDataset").on("change", optionChanged(data.samples));
+    d3.selectAll("#selDataset").on("change", optionChanged(data.samples, data.metadata));
 });
 
 
@@ -25,18 +25,32 @@ function populateDropdown(data){
 
 
 // Function optionChanged
-function optionChanged(data) {
+function optionChanged(data, metaData) {
     
     let dropdownMenu = d3.select("#selDataset");
     
     // Assign the value of the dropdown menu option to a letiable
     let dataset = dropdownMenu.property("value");
-    // console.log(dataset);
+    console.log(dropdownMenu);
     
     // Initialize an empty array for the subject's data
     let subjectData = [];
+    let subjectMetaData = [];
 
     subjectData = data[0];
+    subjectMetaData = metaData[0];
+
+    console.log(subjectData);
+
+    // Update Sample MetaData
+    let metaDataTag = d3.select("#sample-metadata");
+    metaDataTag.append("h5").text("id: " + subjectMetaData.id);    
+    metaDataTag.append("h5").text("ethnicity: " + subjectMetaData.ethnicity);    
+    metaDataTag.append("h5").text("gender: " + subjectMetaData.gender);    
+    metaDataTag.append("h5").text("age: " + subjectMetaData.age);    
+    metaDataTag.append("h5").text("location: " + subjectMetaData.location);    
+    metaDataTag.append("h5").text("bbtype: " + subjectMetaData.bbtype);    
+    metaDataTag.append("h5").text("wfreq: " + subjectMetaData.wfreq);
 
     let topOTUs = subjectData.otu_ids.slice(0,10);
     let topOTUValues = subjectData.sample_values.slice(0,10);
@@ -46,6 +60,8 @@ function optionChanged(data) {
     updatePlotly(topOTUs, topOTUValues, topOTULabels);
 
     updateBubble(subjectData.otu_ids, subjectData.sample_values, subjectData.otu_labels);
+
+    updateGauge(subjectMetaData.wfreq);
 
 }
 
@@ -90,7 +106,7 @@ function updatePlotly(topOTUs, topOTUValues, topOTULabels) {
 
 function updateBubble(otu_ids, sample_values, otu_labels){
 
-    // Create Bubble Graph
+    // Set trace2 for Bubble Graph
     let trace2 = {
         x: otu_ids,
         y: sample_values,
@@ -105,12 +121,48 @@ function updateBubble(otu_ids, sample_values, otu_labels){
 
     dataTrace2 = [trace2];
 
+    // Set layout 2 for Bubble Graph
     let layout2 = {
         title: "OTU ID",
         autosize: true,
         showlegend: false
     };
 
+    // Create Bubble Graph
     Plotly.newPlot("bubble", dataTrace2, layout2);
 
+}
+
+function updateGauge (washCount) {
+
+    // set trace3 for Gauge graph
+    let trace3 = {
+        value: washCount,
+        type: "indicator",
+        mode: "gauge",
+        gauge: {
+            axis: {range: [null, 9]},
+            steps: [
+                {range: [0,1]},
+                {range: [1,2]},
+                {range: [2,3]},
+                {range: [3,4]},
+                {range: [4,5]},
+                {range: [5,6]},
+                {range: [6,7]},
+                {range: [7,8]},
+                {range: [8,9]}
+            ]
+        }
+    };
+
+    let data3 = [trace3];
+
+    let layout3 = {
+        title: "Belly Button Wash Frequency",
+        width: 500,
+        height: 500
+    }
+
+    Plotly.newPlot('gauge', data3, layout3);
 }
