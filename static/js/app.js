@@ -31,6 +31,7 @@ function optionChanged(data) {
     
     // Assign the value of the dropdown menu option to a letiable
     let dataset = dropdownMenu.property("value");
+    // console.log(dataset);
     
     // Initialize an empty array for the subject's data
     let subjectData = [];
@@ -42,11 +43,15 @@ function optionChanged(data) {
     let topOTULabels = subjectData.otu_labels.slice(0,10);
 
     // Call updatePlotly to graph selected subject.
-    updatePlotly(topOTUs, topOTUValues);
+    updatePlotly(topOTUs, topOTUValues, topOTULabels);
+
+    updateBubble(subjectData.otu_ids, subjectData.sample_values, subjectData.otu_labels);
 
 }
 
-function updatePlotly(topOTUs, topOTUValues) {
+function updatePlotly(topOTUs, topOTUValues, topOTULabels) {
+
+    //Create Bar Graph
 
     // Set OTU Labels for graphing
     let yLabels = [];
@@ -55,26 +60,57 @@ function updatePlotly(topOTUs, topOTUValues) {
         yLabels.push("OTU " + topOTUs[i]);
     }
 
-    // Reverse yLabels and topOTUValues for graphing
+    // Reverse yLabels, topOTUValues, and topOTULabels for graphing
     topOTUValues.reverse();
     yLabels.reverse();
+    topOTULabels.reverse();
 
     // set trace1
     let trace1 = {
         x: topOTUValues,
         y: yLabels,
         type: "bar",
-        orientation: 'h'
-    }
+        orientation: 'h',
+        text: topOTULabels
+    };
 
     dataTrace = [trace1];
 
     // set layout
     let layout = {
-        title: 'Belly Button Biodiversity'
-    }
+        autosize: false,
+        width: 400,
+        height: 500
+    };
 
     // Create graph
-    Plotly.newPlot("plot", dataTrace, layout);
+    Plotly.newPlot("bar", dataTrace, layout);
+    
+}
+
+function updateBubble(otu_ids, sample_values, otu_labels){
+
+    // Create Bubble Graph
+    let trace2 = {
+        x: otu_ids,
+        y: sample_values,
+        mode: 'markers',
+        marker: {
+            color: otu_ids,
+            size: sample_values,
+            text: otu_labels
+        },
+        type: 'scatter'
+    };
+
+    dataTrace2 = [trace2];
+
+    let layout2 = {
+        title: "OTU ID",
+        autosize: true,
+        showlegend: false
+    };
+
+    Plotly.newPlot("bubble", dataTrace2, layout2);
 
 }
