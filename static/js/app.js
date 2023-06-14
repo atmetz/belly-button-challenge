@@ -2,55 +2,59 @@
 const samplesUrl = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json"
 
 d3.json(samplesUrl).then(function(data) {
+    // console.log(data);
     
     // call populateDropdown function
     populateDropdown(data);
-
-    d3.selectAll("#selDataset").on("change", optionChanged(data.samples, data.metadata));
-});
-
+    let subjectData = data.samples;
+    let metaData = data.metadata;
+    
+    });
 
 function populateDropdown(data){
     // Set names to names from data file
-    let names = data.names
+    let names = data.names;
 
-    let dropdowntest = d3.select("#selDataset");
+    let dropDownSel = d3.select("#selDataset");
 
     // Add names to drop down menu
     for (i=0; i<names.length; i++) {
 
-        dropdowntest.append("option").attr("value",names[i]).text(names[i]);
+        dropDownSel.append("option").attr("value",names[i]).text(names[i]);
     }
+
+    optionChanged(data.value);
 }
 
 
 // Function optionChanged
-function optionChanged(data, metaData) {
+function optionChanged(value) {
     
     let dropdownMenu = d3.select("#selDataset");
     
     // Assign the value of the dropdown menu option to a letiable
-    let dataset = dropdownMenu.property("value");
-    console.log(dropdownMenu);
-    
+    let dataset = dropdownMenu.property("selectedIndex");
+
+    d3.json(samplesUrl).then(function(data) {
     // Initialize an empty array for the subject's data
     let subjectData = [];
     let subjectMetaData = [];
 
-    subjectData = data[0];
-    subjectMetaData = metaData[0];
+    subjectData = data.samples[dataset];
+    subjectMetaData = data.metadata[dataset];
 
     console.log(subjectData);
 
     // Update Sample MetaData
     let metaDataTag = d3.select("#sample-metadata");
-    metaDataTag.append("h5").text("id: " + subjectMetaData.id);    
-    metaDataTag.append("h5").text("ethnicity: " + subjectMetaData.ethnicity);    
-    metaDataTag.append("h5").text("gender: " + subjectMetaData.gender);    
-    metaDataTag.append("h5").text("age: " + subjectMetaData.age);    
-    metaDataTag.append("h5").text("location: " + subjectMetaData.location);    
-    metaDataTag.append("h5").text("bbtype: " + subjectMetaData.bbtype);    
-    metaDataTag.append("h5").text("wfreq: " + subjectMetaData.wfreq);
+    d3.selectAll("li").remove();
+    metaDataTag.append("li").text("id: " + subjectMetaData.id);    
+    metaDataTag.append("li").text("ethnicity: " + subjectMetaData.ethnicity);    
+    metaDataTag.append("li").text("gender: " + subjectMetaData.gender);    
+    metaDataTag.append("li").text("age: " + subjectMetaData.age);    
+    metaDataTag.append("li").text("location: " + subjectMetaData.location);    
+    metaDataTag.append("li").text("bbtype: " + subjectMetaData.bbtype);    
+    metaDataTag.append("li").text("wfreq: " + subjectMetaData.wfreq);
 
     let topOTUs = subjectData.otu_ids.slice(0,10);
     let topOTUValues = subjectData.sample_values.slice(0,10);
@@ -63,7 +67,7 @@ function optionChanged(data, metaData) {
 
     updateGauge(subjectMetaData.wfreq);
 
-}
+})}
 
 function updatePlotly(topOTUs, topOTUValues, topOTULabels) {
 
