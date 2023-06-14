@@ -1,19 +1,23 @@
 // Get samples.json from URL
 const samplesUrl = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json"
+let globData = [];
 
 d3.json(samplesUrl).then(function(data) {
     // console.log(data);
     
     // call populateDropdown function
-    populateDropdown(data);
-    let subjectData = data.samples;
-    let metaData = data.metadata;
+    globData = data;
+    populateDropdown();
+    
     
     });
 
-function populateDropdown(data){
+// populateDropdown();
+
+function populateDropdown(){
     // Set names to names from data file
-    let names = data.names;
+    let names = globData.names;
+    console.log(globData);
 
     let dropDownSel = d3.select("#selDataset");
 
@@ -23,27 +27,28 @@ function populateDropdown(data){
         dropDownSel.append("option").attr("value",names[i]).text(names[i]);
     }
 
-    optionChanged(data.value);
+    optionChanged(globData.value);
 }
 
 
 // Function optionChanged
 function optionChanged(value) {
+
+    // console.log(data);
     
     let dropdownMenu = d3.select("#selDataset");
     
     // Assign the value of the dropdown menu option to a letiable
     let dataset = dropdownMenu.property("selectedIndex");
 
-    d3.json(samplesUrl).then(function(data) {
     // Initialize an empty array for the subject's data
     let subjectData = [];
     let subjectMetaData = [];
 
-    subjectData = data.samples[dataset];
-    subjectMetaData = data.metadata[dataset];
+    subjectData = globData.samples[dataset];
+    subjectMetaData = globData.metadata[dataset];
 
-    console.log(subjectData);
+    // console.log(subjectData);
 
     // Update Sample MetaData
     let metaDataTag = d3.select("#sample-metadata");
@@ -67,7 +72,7 @@ function optionChanged(value) {
 
     updateGauge(subjectMetaData.wfreq);
 
-})}
+}
 
 function updatePlotly(topOTUs, topOTUValues, topOTULabels) {
 
